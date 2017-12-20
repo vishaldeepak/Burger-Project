@@ -20,7 +20,7 @@ class BurgerBuilder extends Component{
       bacon: 0,
       salad: 0
     },
-    totalPrice: 0.0,
+    totalPrice: 4.0,
     purchasable: false,
     purchasing: false
   }
