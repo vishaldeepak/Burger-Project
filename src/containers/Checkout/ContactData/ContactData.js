@@ -7,14 +7,17 @@ import axios from '../../../axios-orders';
 import Input from '../../../components/UI/Input/Input'
 
 class ContactData extends Component {
-    setupInputConfig(placeholder){
+    setupInputConfig(placeholder, rules={required: true}){
         return {
             elementType: 'input',
             elementConfig:{
                 type: 'text',
                 placeholder: placeholder
             },
-            value: ''
+            value: '',
+            valid: false,
+            validation: rules,
+            touched: false
         }
     }
 
@@ -22,7 +25,7 @@ class ContactData extends Component {
         orderForm: {
             name: this.setupInputConfig('Your Name'),
             street: this.setupInputConfig('Street Address'),
-            city: this.setupInputConfig('ZIP Code'),
+            code: this.setupInputConfig('ZIP Code', {required: true, minLength: 5, maxLength: 5}),
             country: this.setupInputConfig('Country'),
             email: this.setupInputConfig('Your Email'),
             deliveryMethod: {
@@ -33,10 +36,26 @@ class ContactData extends Component {
                         {value: 'cheapest', displayValue: 'Cheapest'}
                     ]
                 },
-                value: ''
+                value: '',
+                valid: false,
+                touched: false
             }
         },
         loading: false
+    }
+
+    checkValidity(value, rules){
+        let isValid = true
+        if(rules.required){
+            isValid = value.trim() !== '' && isValid;
+        }
+        if(rules.minLength){
+            isValid = value.length >= rules.minLength && isValid
+        }
+        if(rules.maxLength){
+            isValid = value.length <= rules.maxLength && isValid
+        }
+        return isValid;
     }
 
     orderHandler = (event) => {
@@ -45,18 +64,14 @@ class ContactData extends Component {
             loading: true
         })
 
+        const formData = {}
+        for(let formElementId in this.state.orderForm){
+            formData[formElementId]= this.state.orderForm[formElementId].value;
+        }
         const orders = {
         ingredients: this.props.ingredients,
         price: this.props.totalPrice,//in real app you would re calculate price on server
-        customer: {
-            name: 'Vishal Deepak',
-            address: {
-            street: 'Avenue Road',
-            city: 'Gotham'
-            },
-            email: 'test@test.com'
-        },
-        deliveryMethod: 'Fastest'
+        orderData: formData
         }
 
         axios.post('/orders.json', orders)
@@ -77,7 +92,10 @@ class ContactData extends Component {
             ...updatedOrderForm[inputIdentifier]
         }
         updatedElement.value = event.target.value
+        updatedElement.valid = this.checkValidity(updatedElement.value, updatedElement.validation)
+        updatedElement.touched = true
         updatedOrderForm[inputIdentifier] = updatedElement
+
         this.setState({
             orderForm: updatedOrderForm
         })
@@ -100,7 +118,10 @@ class ContactData extends Component {
                         elementType={formElement.config.elementType}
                         elementConfig={formElement.config.elementConfig}
                         value={formElement.config.value}
-                        changed={(event) => this.inputChangedHandler(event, formElement.id)}/>
+                        changed={(event) => this.inputChangedHandler(event, formElement.id)}
+                        invalid={!formElement.config.valid}
+                        touched={formElement.config.touched}
+                        shouldValidate={formElement.config.validation}/>
                 ))}
                 <Button btnType="Success" clicked={this.orderHandler}>ORDER</Button>
             </form>
