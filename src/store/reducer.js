@@ -1,7 +1,7 @@
 import * as actionTypes from './actions'
 
 const initialState = {
-  ingredients: [],
+  ingredients: null,
   totalPrice: 0.0
 }
 
