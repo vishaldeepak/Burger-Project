@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
+import { Redirect }  from 'react-router-dom'
 
 import Button from '../../components/UI/Button/Button'
 import Input from '../../components/UI/Input/Input'
@@ -40,7 +41,13 @@ class Auth extends Component {
         valid: false
       }
     },
-    isSignUp: true
+    isSignUp: false
+  }
+
+  componentDidMount(){
+    if (!this.props.buildingBurger && this.props.authRedirectPath !== '/'){
+      this.props.setAuthRedirect()
+    }
   }
 
   checkValidity(value, rules){
@@ -135,6 +142,11 @@ class Auth extends Component {
       )
     }
 
+
+    if(this.props.isAuthenticated){
+      return <Redirect to={this.props.authRedirectPath}/>
+    }
+
     return (
       <div className={classes.Auth}>
         {form}
@@ -148,13 +160,17 @@ class Auth extends Component {
 const mapStateToProps = state => {
   return {
     loading: state.auth.loading,
-    error: state.auth.error
+    error: state.auth.error,
+    isAuthenticated: state.auth.token !== null,
+    buildingBurger: state.burgerBuilder.building,
+    authRedirectPath: state.auth.redirectPath
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-      onAuth: (email, password, isSignUp) => dispatch(actions.auth(email, password, isSignUp))
+      onAuth: (email, password, isSignUp) => dispatch(actions.auth(email, password, isSignUp)),
+      setAuthRedirect: () => dispatch(actions.setAuthRedirectPath("/"))
   };
 };
 
