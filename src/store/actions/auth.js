@@ -79,13 +79,11 @@ export const auth = (email, password, isSignUp) => {
         }
         axios.post(url, authData)
         .then( res => {
-            console.log(res);
             setLocalStorage(res.data.idToken, res.data.expiresIn, res.data.localId)
             dispatch(authSuccess(res.data))
             dispatch(checkAuthTimeout(res.data.expiresIn))
         })
         .catch( err => {
-            console.log(err);
             dispatch(authFail(err.response.data.error))
         })
     };

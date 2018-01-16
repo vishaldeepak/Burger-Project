@@ -4,9 +4,9 @@ import Button from '../../UI/Button/Button'
 
 class OrderSummary extends Component {
   //This is a stateful component for the saking of debugging/Learning
-  componentWillUpdate(){
-    console.log("Updated")
-  }
+  // componentWillUpdate(){
+  //   console.log("Updated")
+  // }
 
   render(){
     const ingredientSummary = Object.keys(this.props.ingredients)
